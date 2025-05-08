@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, User } from "lucide-react";
+import { Send, User, RefreshCw, MessageCircleHeart } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 import TopicSelector from "./TopicSelector";
@@ -41,6 +41,7 @@ const ChatInterface = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [currentPartner, setCurrentPartner] = useState<string | null>(null);
+  const [isChangingTopic, setIsChangingTopic] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -57,6 +58,14 @@ const ChatInterface = () => {
     setSelectedTopic(topic);
   };
   
+  const handleChangeTopic = () => {
+    setIsChangingTopic(true);
+    setIsConnected(false);
+    setMessages([]);
+    setCurrentPartner(null);
+    setSelectedTopic(null);
+  };
+  
   const handleStartChat = () => {
     if (!selectedTopic) {
       toast({
@@ -68,6 +77,7 @@ const ChatInterface = () => {
     }
     
     setIsConnecting(true);
+    setIsChangingTopic(false);
     
     // Simulate connecting to a partner
     setTimeout(() => {
@@ -137,16 +147,19 @@ const ChatInterface = () => {
     }
   };
   
-  if (!isConnected) {
+  if (isChangingTopic || !isConnected) {
     return (
       <div className="flex flex-col items-center justify-center p-8 glass-card rounded-3xl h-full animate-fade-in">
         <div className="max-w-md w-full">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center bg-gradient-candy bg-clip-text text-transparent">Find Your Dating Advisor</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center bg-gradient-candy bg-clip-text text-transparent flex items-center justify-center gap-2">
+            <MessageCircleHeart className="h-7 w-7 text-app-purple" />
+            Find Your Dating Advisor
+          </h2>
           <p className="text-gray-500 text-center mb-8">
             Choose a dating topic you'd like to discuss and we'll connect you with someone who can help.
           </p>
           
-          <TopicSelector onSelectTopic={handleSelectTopic} />
+          <TopicSelector onSelectTopic={handleSelectTopic} selectedTopic={selectedTopic} />
           
           <div className="mt-8">
             <Button 
@@ -172,18 +185,29 @@ const ChatInterface = () => {
   
   return (
     <div className="flex flex-col h-full glass-card rounded-3xl shadow-card animate-fade-in">
-      <div className="p-4 border-b border-slate-100 flex items-center space-x-3 bg-white/80 rounded-t-3xl">
-        <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm">
-          <User className="h-5 w-5" />
-        </Avatar>
-        <div>
-          <p className="font-medium text-gray-800">
-            {currentPartner || "Dating Advisor"}
-          </p>
-          <p className="text-xs text-gray-500">
-            {selectedTopic ? `Topic: ${selectedTopic}` : "Ready to help"}
-          </p>
+      <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white/80 rounded-t-3xl">
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm">
+            <User className="h-5 w-5" />
+          </Avatar>
+          <div>
+            <p className="font-medium text-gray-800">
+              {currentPartner || "Dating Advisor"}
+            </p>
+            <p className="text-xs text-gray-500">
+              {selectedTopic ? `Topic: ${selectedTopic}` : "Ready to help"}
+            </p>
+          </div>
         </div>
+        <Button
+          variant="outline" 
+          size="sm"
+          className="rounded-lg text-gray-500 hover:text-app-purple flex items-center gap-1"
+          onClick={handleChangeTopic}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          Change Topic
+        </Button>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-gradient-to-b from-white to-slate-50/50">
@@ -213,6 +237,7 @@ const ChatInterface = () => {
           <Button 
             onClick={handleSendMessage} 
             className="bg-gradient-candy hover:opacity-90 rounded-xl shadow-sm"
+            disabled={!inputValue.trim()}
           >
             <Send className="h-5 w-5" />
           </Button>
