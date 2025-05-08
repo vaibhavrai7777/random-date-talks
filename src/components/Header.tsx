@@ -25,6 +25,9 @@ const Header = () => {
         </nav>
         
         <div className="flex items-center space-x-3">
+          <Link to="/login" className="text-gray-600 hover:text-app-purple transition-colors hidden sm:inline-block">
+            Login
+          </Link>
           <Link to="/chat">
             <Button className="bg-app-purple hover:bg-app-purple/90">
               Start Chatting
