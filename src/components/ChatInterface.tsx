@@ -139,9 +139,9 @@ const ChatInterface = () => {
   
   if (!isConnected) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 bg-white rounded-xl border h-full">
+      <div className="flex flex-col items-center justify-center p-8 glass-card rounded-3xl h-full animate-fade-in">
         <div className="max-w-md w-full">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">Find Your Dating Advisor</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center bg-gradient-candy bg-clip-text text-transparent">Find Your Dating Advisor</h2>
           <p className="text-gray-500 text-center mb-8">
             Choose a dating topic you'd like to discuss and we'll connect you with someone who can help.
           </p>
@@ -150,11 +150,19 @@ const ChatInterface = () => {
           
           <div className="mt-8">
             <Button 
-              className="w-full bg-app-purple hover:bg-app-purple-dark" 
+              className="w-full bg-gradient-candy hover:opacity-90 rounded-xl shadow-md h-12 text-base transition-all" 
               onClick={handleStartChat}
               disabled={isConnecting}
             >
-              {isConnecting ? "Finding an advisor..." : "Start Chatting"}
+              {isConnecting ? (
+                <div className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Finding an advisor...
+                </div>
+              ) : "Start Chatting"}
             </Button>
           </div>
         </div>
@@ -163,9 +171,9 @@ const ChatInterface = () => {
   }
   
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl border">
-      <div className="p-4 border-b flex items-center space-x-3">
-        <Avatar>
+    <div className="flex flex-col h-full glass-card rounded-3xl shadow-card animate-fade-in">
+      <div className="p-4 border-b border-slate-100 flex items-center space-x-3 bg-white/80 rounded-t-3xl">
+        <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm">
           <User className="h-5 w-5" />
         </Avatar>
         <div>
@@ -178,7 +186,7 @@ const ChatInterface = () => {
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-gradient-to-b from-white to-slate-50/50">
         {messages.map((message) => (
           <div 
             key={message.id} 
@@ -193,18 +201,18 @@ const ChatInterface = () => {
         <div ref={messagesEndRef} />
       </div>
       
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-slate-100 bg-white/80 rounded-b-3xl">
         <div className="flex space-x-2">
           <Input
             placeholder="Type your message..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 input-focus-ring"
+            className="flex-1 input-focus-ring rounded-xl shadow-sm border-slate-200"
           />
           <Button 
             onClick={handleSendMessage} 
-            className="bg-app-purple hover:bg-app-purple/90"
+            className="bg-gradient-candy hover:opacity-90 rounded-xl shadow-sm"
           >
             <Send className="h-5 w-5" />
           </Button>

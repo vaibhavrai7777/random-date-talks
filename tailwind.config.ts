@@ -56,8 +56,8 @@ export default {
 				// Custom colors
 				"app-purple": {
 					light: "#E5DEFF",
-					DEFAULT: "#9b87f5",
-					dark: "#7E69AB"
+					DEFAULT: "#8B5CF6",
+					dark: "#6D41D7"
 				},
 				"app-pink": "#FFDEE2",
 				"app-peach": "#FDE1D3",
@@ -109,13 +109,32 @@ export default {
 					'50%': {
 						transform: 'translateY(-4px)'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
-				'bounce-subtle': 'bounce-subtle 3s ease-in-out infinite'
+				'bounce-subtle': 'bounce-subtle 3s ease-in-out infinite',
+				'fade-in': 'fade-in 0.5s ease-out'
+			},
+			boxShadow: {
+				'glow': '0 0 15px rgba(139, 92, 246, 0.5)',
+				'card': '0 10px 30px -10px rgba(0, 0, 0, 0.1)'
+			},
+			backgroundImage: {
+				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'gradient-candy': 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)'
 			}
 		}
 	},

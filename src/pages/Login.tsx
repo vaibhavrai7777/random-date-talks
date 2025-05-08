@@ -38,14 +38,14 @@ const Login = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       
-      <main className="flex-1 container my-8 flex items-center justify-center">
+      <main className="flex-1 container my-12 flex items-center justify-center">
         <div className="w-full max-w-md">
-          <Card className="border-app-purple/20 shadow-lg overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-app-purple/5 to-app-pink/10 z-0"></div>
+          <Card className="glass-card border-none shadow-card overflow-hidden rounded-3xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-app-purple/10 to-app-pink/20 z-0 rounded-3xl"></div>
             
-            <CardHeader className="relative z-10 space-y-1 pb-6">
-              <CardTitle className="text-2xl font-bold text-center">Welcome to DateChat</CardTitle>
-              <CardDescription className="text-center">
+            <CardHeader className="relative z-10 space-y-2 pb-6">
+              <CardTitle className="text-3xl font-bold text-center bg-gradient-candy bg-clip-text text-transparent">Welcome to DateChat</CardTitle>
+              <CardDescription className="text-center text-base">
                 Log in to start getting dating advice
               </CardDescription>
             </CardHeader>
@@ -62,7 +62,7 @@ const Login = () => {
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="border-app-purple/20 focus-visible:ring-app-purple transition-all"
+                    className="border-gray-200 focus-visible:ring-app-purple transition-all rounded-xl h-12"
                     disabled={isLoading}
                   />
                 </div>
@@ -78,7 +78,7 @@ const Login = () => {
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="border-app-purple/20 pr-10 focus-visible:ring-app-purple transition-all"
+                      className="border-gray-200 pr-10 focus-visible:ring-app-purple transition-all rounded-xl h-12"
                       disabled={isLoading}
                     />
                     <button
@@ -93,7 +93,7 @@ const Login = () => {
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-app-purple hover:bg-app-purple/90"
+                  className="w-full bg-gradient-candy hover:opacity-90 mt-4 rounded-xl shadow-md h-12 text-base"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -108,7 +108,7 @@ const Login = () => {
               </form>
             </CardContent>
             
-            <CardFooter className="flex flex-col gap-4 pt-0 pb-6 relative z-10">
+            <CardFooter className="flex flex-col gap-4 pt-0 pb-8 relative z-10">
               <div className="text-sm text-center">
                 <span className="text-muted-foreground">Don't have an account? </span>
                 <Link to="/login" className="text-app-purple hover:underline font-medium">
