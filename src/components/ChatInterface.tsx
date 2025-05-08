@@ -6,12 +6,14 @@ import { Send, User, RefreshCw, MessageCircleHeart } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { useToast } from "@/components/ui/use-toast";
 import TopicSelector from "./TopicSelector";
+import MediaTransfer from "./MediaTransfer";
 
 interface Message {
   id: string;
   content: string;
   sender: "user" | "partner";
   timestamp: Date;
+  type?: "text" | "image" | "camera" | "contact";
 }
 
 const partnersData = [
@@ -34,17 +36,43 @@ const INITIAL_MESSAGES: Record<string, string> = {
   "Long Distance": "Long distance relationships are challenging but can work! Are you in one now?",
 };
 
-const ChatInterface = () => {
+interface ChatInterfaceProps {
+  selectedTopic?: string | null;
+  onSelectTopic?: (topic: string) => void;
+  onChangeTopicRequest?: () => void;
+  isConnectedExternal?: boolean;
+  onConnectionChange?: (connected: boolean) => void;
+}
+
+const ChatInterface = ({
+  selectedTopic: externalSelectedTopic,
+  onSelectTopic: externalSelectTopic,
+  onChangeTopicRequest,
+  isConnectedExternal,
+  onConnectionChange
+}: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(isConnectedExternal || false);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(externalSelectedTopic || null);
   const [currentPartner, setCurrentPartner] = useState<string | null>(null);
   const [isChangingTopic, setIsChangingTopic] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  useEffect(() => {
+    if (isConnectedExternal !== undefined) {
+      setIsConnected(isConnectedExternal);
+    }
+  }, [isConnectedExternal]);
+  
+  useEffect(() => {
+    if (externalSelectedTopic !== undefined) {
+      setSelectedTopic(externalSelectedTopic);
+    }
+  }, [externalSelectedTopic]);
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,14 +84,25 @@ const ChatInterface = () => {
   
   const handleSelectTopic = (topic: string) => {
     setSelectedTopic(topic);
+    if (externalSelectTopic) {
+      externalSelectTopic(topic);
+    }
   };
   
   const handleChangeTopic = () => {
-    setIsChangingTopic(true);
-    setIsConnected(false);
-    setMessages([]);
-    setCurrentPartner(null);
-    setSelectedTopic(null);
+    if (onChangeTopicRequest) {
+      onChangeTopicRequest();
+    } else {
+      setIsChangingTopic(true);
+      setIsConnected(false);
+      setMessages([]);
+      setCurrentPartner(null);
+      setSelectedTopic(null);
+    }
+    
+    if (onConnectionChange) {
+      onConnectionChange(false);
+    }
   };
   
   const handleStartChat = () => {
@@ -101,8 +140,13 @@ const ChatInterface = () => {
           content: initialMessage,
           sender: "partner",
           timestamp: new Date(),
+          type: "text"
         },
       ]);
+      
+      if (onConnectionChange) {
+        onConnectionChange(true);
+      }
     }, 2000);
   };
   
@@ -115,6 +159,7 @@ const ChatInterface = () => {
       content: inputValue,
       sender: "user" as const,
       timestamp: new Date(),
+      type: "text"
     };
     
     setMessages(prev => [...prev, userMessage]);
@@ -135,6 +180,51 @@ const ChatInterface = () => {
         content: responses[Math.floor(Math.random() * responses.length)],
         sender: "partner" as const,
         timestamp: new Date(),
+        type: "text"
+      };
+      
+      setMessages(prev => [...prev, partnerMessage]);
+    }, 1500);
+  };
+  
+  const handleSendMedia = (type: string, content: string) => {
+    if (!isConnected) return;
+    
+    // Add user media message
+    const userMessage = {
+      id: Date.now().toString(),
+      content: content,
+      sender: "user" as const,
+      timestamp: new Date(),
+      type: type as "image" | "camera" | "contact"
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Simulate partner typing and response
+    setTimeout(() => {
+      let response = "";
+      
+      switch(type) {
+        case "image":
+          response = "Thanks for sharing that image! It really helps me understand what you're talking about.";
+          break;
+        case "camera":
+          response = "Great photo! That gives me a much better idea of what you mean.";
+          break;
+        case "contact":
+          response = "I've received the contact info. I'll make a note of it.";
+          break;
+        default:
+          response = "Thanks for sharing that!";
+      }
+      
+      const partnerMessage = {
+        id: (Date.now() + 1).toString(),
+        content: response,
+        sender: "partner" as const,
+        timestamp: new Date(),
+        type: "text"
       };
       
       setMessages(prev => [...prev, partnerMessage]);
@@ -144,6 +234,30 @@ const ChatInterface = () => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSendMessage();
+    }
+  };
+  
+  // Render the message content based on its type
+  const renderMessageContent = (message: Message) => {
+    switch(message.type) {
+      case "image":
+      case "camera":
+        return <img src={message.content} alt="Shared media" className="rounded-md max-w-full max-h-60 my-2" />;
+      case "contact":
+        try {
+          const contact = JSON.parse(message.content);
+          return (
+            <div className="bg-white/50 rounded-md p-3 my-2 border border-gray-100">
+              <h4 className="font-medium">{contact.name}</h4>
+              <p className="text-sm text-gray-600">{contact.phone}</p>
+              <p className="text-sm text-gray-600">{contact.email}</p>
+            </div>
+          );
+        } catch (e) {
+          return <p>{message.content}</p>;
+        }
+      default:
+        return <p>{message.content}</p>;
     }
   };
   
@@ -216,7 +330,7 @@ const ChatInterface = () => {
             key={message.id} 
             className={`chat-bubble ${message.sender === "user" ? "chat-bubble-user" : "chat-bubble-partner"}`}
           >
-            {message.content}
+            {renderMessageContent(message)}
             <div className="text-xs mt-1 opacity-70 text-right">
               {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
             </div>
@@ -226,7 +340,9 @@ const ChatInterface = () => {
       </div>
       
       <div className="p-4 border-t border-slate-100 bg-white/80 rounded-b-3xl">
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2">
+          <MediaTransfer onSendMedia={handleSendMedia} isConnected={isConnected} />
+          
           <Input
             placeholder="Type your message..."
             value={inputValue}
